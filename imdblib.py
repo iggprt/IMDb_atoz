@@ -11,10 +11,14 @@ import time
 
 class Title():
 
-	def __init__(self, link):
+	def __init__(self, link, source = ''):
 
 		self.link = link
-		self.source = requests.get ( link ).text
+		if source == '':
+			self.source = requests.get ( link ).text
+		else: 
+			self.source = source
+			
 		self.soup = BeautifulSoup ( self.source,"lxml" )
 
 	@property
@@ -28,7 +32,11 @@ class Title():
 
 	@property
 	def movieID(self):
-		pass
+		matches = self.soup.find_all('div', class_="ribbonize" )
+		if matches != []:
+			return matches[0].get('data-tconst')
+		else:
+			return "__ID_Error__"
 
 	@property
 	def titleYear(self):
@@ -137,11 +145,6 @@ class Title():
 		pattern = re.compile(r'Budget:</h4>((.|\n)+)<span\sclass="attribute"')
 
 		matches = pattern.findall(self.source)
-
-		
-
-
-
 		print (matches)
 		print ("\n")
 		#return matches 
