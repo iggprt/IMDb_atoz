@@ -1,4 +1,4 @@
-
+ 
 """Library containing the two classes"""
 
 
@@ -8,18 +8,21 @@ import requests
 import re
 import time
 
+def strip_ID(link):
+	pattern = re.compile(r'((tt|nm)[0-9]{7})')
+	matches = pattern.findall(link)
+	if matches != []:
+		return matches[0][0]
+	else:
+		return "__ID_Error__"
+
 
 class Title():
 
-	def __init__(self, link, source = ''):
+	def __init__(self, source):
+		self.source = source
+		self.soup = BeautifulSoup ( source, "lxml" )
 
-		self.link = link
-		if source == '':
-			self.source = requests.get ( link ).text
-		else: 
-			self.source = source
-			
-		self.soup = BeautifulSoup ( self.source,"lxml" )
 
 	@property
 	def title(self):
@@ -145,6 +148,7 @@ class Title():
 		pattern = re.compile(r'Budget:</h4>((.|\n)+)<span\sclass="attribute"')
 
 		matches = pattern.findall(self.source)
+
 		print (matches)
 		print ("\n")
 		#return matches 
@@ -152,15 +156,55 @@ class Title():
 
 	@property
 	def directors(self):
-		pass
+
+		start = self.source.find('"inline">Director')
+		fin = self.source.find('"inline">Writer')
+		section = self.source[start: fin]
+
+		soup_sect = BeautifulSoup(section, 'lxml')
+
+		matches = soup_sect.find_all('a', itemprop = 'url')
+		matches = [[match.text, strip_ID(match.get('href'))] for match in matches]
+
+		if matches != []:
+			return matches
+		else:
+			return "__DirectorError__"
+
 
 	@property
 	def writers(self):
-		pass
+
+		start = self.source.find('"inline">Writer')
+		fin = self.source.find('"inline">Star')
+		section = self.source[start: fin]
+
+		soup_sect = BeautifulSoup(section, 'lxml')
+
+		matches = soup_sect.find_all('a', itemprop = 'url')
+		matches = [[match.text, strip_ID(match.get('href'))] for match in matches]
+
+		if matches != []:
+			return matches
+		else:
+			return "__WriterError__"
 
 	@property
 	def actors(self):
-		pass
+
+		start = self.source.find('class="cast_list"')
+		fin = self.source.find('See full cast</a>')
+		section = self.source[start: fin]
+
+		soup_sect = BeautifulSoup(section, 'lxml')
+
+		matches = soup_sect.find_all('a', itemprop = 'url')
+		matches = [[match.text, strip_ID(match.get('href'))] for match in matches]
+
+		if matches != []:
+			return matches
+		else:
+			return "__ActorError__"
 
 	@property
 	def oscars(self):
@@ -177,15 +221,12 @@ class Title():
 
 
 
-
-
 class Actor():
 	"""docstring for ClassName"""
 
-	def __init__(self, link):
+	def __init__(self, source):
 
-		self.link = link
-		self.source = requests.get ( link ).text
+		self.source = source
 		self.soup = BeautifulSoup ( self.source,"lxml" )
 
 		self.biosource = requesets.get(link+'bio/')
@@ -218,40 +259,3 @@ class Actor():
 	@property
 	def oscars(self):
 		pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
