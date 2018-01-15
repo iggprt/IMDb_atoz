@@ -108,7 +108,7 @@ class Title():
 	@property
 	def runtime(self):
 
-		matches = self.soup.find_all('time', itemprop='duration')
+		matches = self.soup.find_all('time', itemprop = 'duration')
 		match = int(matches[0].get('datetime')[2:-1])
 
 		if matches != []:
@@ -120,7 +120,7 @@ class Title():
 	@property
 	def storyline(self):
 
-		matches = self.soup.find_all('div', itemprop='description')
+		matches = self.soup.find_all('div', itemprop = 'description')
 
 		if matches != []:
 			return matches[0].text.strip()
@@ -212,7 +212,13 @@ class Title():
 
 	@property
 	def metascore(self):
-		pass
+		matches = page.find_all('div', class_ = 'metacriticScore score_favorable titleReviewBarSubItem')
+		
+		if matches != []:
+			return int(matches[0].text[1:-1])
+		else:
+			return "__MetascoreError__"
+		
 
 	@property
 	def productionCo(self):
