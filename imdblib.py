@@ -208,11 +208,18 @@ class Title():
 
 	@property
 	def oscars(self):
-		pass
+		matches = self.soup.find_all('span', itemprop = 'awards')
+		string = re.sub(r'[\n\s]+','',matches[0].text)
+		pattern = re.compile(r'Won(\d+)(Oscar|oscar)')
+		match = pattern.findall(string)
+		if match != []:
+			return match[0][0]
+		else:
+			return 0
 
 	@property
 	def metascore(self):
-		matches = page.find_all('div', class_ = 'metacriticScore score_favorable titleReviewBarSubItem')
+		matches = self.soup.find_all('div', class_ = 'metacriticScore score_favorable titleReviewBarSubItem')
 		
 		if matches != []:
 			return int(matches[0].text[1:-1])
