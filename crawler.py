@@ -8,7 +8,7 @@ visited = []
 to_go = [link2]
 
 def get_source(link):
-	return requests.get(to_go[0]).text
+	return requests.get(link).text
 
 def get_links(source):
 	""" returns all the links found on this page """
@@ -40,7 +40,7 @@ def get_links(source):
 
 	return matches
 
-
+"""
 while len(to_go)>0:
 	
 	if to_go[0] not in visited:
@@ -53,3 +53,4 @@ while len(to_go)>0:
 	print (to_go[0])
 	del to_go[0]
 
+"""

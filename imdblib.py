@@ -25,7 +25,7 @@ class Title():
 
 
 	@property
-	def title(self):
+	def title(self):   #todo - do something about the tv movies
 		
 		matches = self.soup.find_all('meta', property='og:title')
 		if matches != []:
@@ -224,7 +224,7 @@ class Title():
 		if matches != []:
 			return int(matches[0].text[1:-1])
 		else:
-			return "__MetascoreError__"
+			return -1 
 		
 
 	@property

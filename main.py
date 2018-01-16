@@ -13,7 +13,6 @@ for row in csvreader:
 	source = crawler.get_source(row[0])
 	movie = imdblib.Title(source)
 
-	sql.add_movie(movie)
-
 	print (movie.title)
-	
+
+	sql.add_movie(movie)
