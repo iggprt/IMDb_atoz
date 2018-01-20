@@ -128,7 +128,6 @@ class Title():
 			return "__StoryLineError__"
 
 
-
 	@property
 	def originalTitle(self):
 
@@ -145,13 +144,16 @@ class Title():
 	@property
 	def budget(self):
 
-		pattern = re.compile(r'Budget:</h4>((.|\n)+)<span\sclass="attribute"')
+		pattern = re.compile(r'Budget:<\/h4>(.+)')
+		pattern = re.compile(r'Budget:(.+)')
 
-		matches = pattern.findall(self.source)
+		match = pattern.findall(self.source)
+		if match != []:
+			match[0] = re.sub(' ','',match[0]) 
+		else:
+			return 0
 
-		print (matches)
-		print ("\n")
-		#return matches 
+		return match[0][5:]
 
 
 	@property
@@ -189,6 +191,7 @@ class Title():
 		else:
 			return "__WriterError__"
 
+
 	@property
 	def actors(self):
 
@@ -199,12 +202,13 @@ class Title():
 		soup_sect = BeautifulSoup(section, 'lxml')
 
 		matches = soup_sect.find_all('a', itemprop = 'url')
-		matches = [[match.text, strip_ID(match.get('href'))] for match in matches]
+		matches = [[match.text[:-1], strip_ID(match.get('href'))] for match in matches]
 
 		if matches != []:
 			return matches
 		else:
 			return "__ActorError__"
+
 
 	@property
 	def oscars(self):
@@ -216,6 +220,7 @@ class Title():
 			return match[0][0]
 		else:
 			return 0
+
 
 	@property
 	def metascore(self):
@@ -242,33 +247,75 @@ class Actor():
 		self.source = source
 		self.soup = BeautifulSoup ( self.source,"lxml" )
 
-		self.biosource = requesets.get(link+'bio/')
-		self.biosoup = BeautifulSoup (self.biosource, 'lxml')
+		#self.biosource = requesets.get(link+'bio/')
+		#self.biosoup = BeautifulSoup (self.biosource, 'lxml')
 
 	@property
 	def name(self):
-		pass
+
+		name = self.soup.find_all('span', itemprop = 'name')[0].text
+
+		return  name
 
 	@property
 	def birthDate(self):
-		pass
+
+		birth = self.soup.find_all('time', itemprop ='birthDate')
+		if birth == []:
+			return 'n/a'
+		else :
+			return birth[0].get('datetime')
+		return birth
 
 	@property
 	def birthPlace(self):
-		pass
+
+		birthplace = self.soup.find_all('div', id = 'name-born-info')
+		if birthplace == []:
+			return 'n/a'
+		else:
+			birthplace = birthplace[0].find_all('a')
+			if len(birthplace) < 3:
+				birthplace = birthplace[0].text
+				birthplace = birthplace.strip().split(', ')
+			else:
+				birthplace = birthplace[2].text
+				birthplace = birthplace.strip().split(', ')
+		
+
+		return birthplace
 
 	@property
 	def jobs(self):
-		pass
+		jobs = self.soup.find_all('span', itemprop = 'jobTitle')
+		jobs = [job.text.strip() for job in jobs]
 
-	@property
-	def hight(sefl):
-		pass
+		return jobs 
+
 
 	@property
 	def death(self):
-		pass
+		death = self.soup.find_all('time', itemprop ='deathDate')
+		if death == []:
+			death = 'n/a'
+		else:
+			death = death[0].get('datetime')
+
+		return death
 
 	@property
 	def oscars(self):
-		pass
+		oscars = self.soup.find_all('span', itemprop = 'awards')
+		if oscars == []:
+			return 0
+		else:
+			oscars = oscars[0].text
+		oscars = re.sub(r'(\n| )','',oscars)
+		pattern = re.compile(r'Won([0-9])+Oscar')
+		oscars = pattern.findall(oscars)
+		if oscars == []:
+			oscars = 0
+		else:
+			oscars = int(oscars[0])
+
+		return oscars

@@ -14,5 +14,19 @@ for row in csvreader:
 	movie = imdblib.Title(source)
 
 	print (movie.title)
+	#print (movie.budget)
+	print (movie.actors)
 
-	sql.add_movie(movie)
+	for item in movie.actors:
+		act_source = crawler.get_source('http://www.imdb.com/name/' + item[1] + '/')
+		actor = imdblib.Actor(act_source)
+		print (actor.name) 
+		print (actor.birthDate)
+		print (actor.death)
+		print (actor.birthPlace)
+		print (actor.jobs)
+		print (actor.oscars)
+		print ('\n')
+	print ('\n_________________________________________________')
+
+	#sql.add_movie(movie)
