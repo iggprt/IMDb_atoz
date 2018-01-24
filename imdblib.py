@@ -16,6 +16,21 @@ def strip_ID(link):
 	else:
 		return "__ID_Error__"
 
+def display_list(vect):
+	result = ''
+	result += vect[0]
+	for element in vect[1:]:
+		result += ', ' + element
+	return result
+
+def display_matrice(matrice):
+	result = ''
+	result += matrice[0][0]
+	for line in matrice:
+		result += ', ' + line[0]
+	return result
+
+
 
 class Title():
 
@@ -86,10 +101,9 @@ class Title():
 	def ratingValue(self):
 
 		matches = self.soup.find_all('span', itemprop='ratingValue')
-		match = float(matches[0].text.replace(".",""))/10
 
 		if matches != []:
-			return match
+			return float(matches[0].text.replace(".",""))/10
 		else:
 			return "__ratingValueError__ "+self.name
 
