@@ -259,7 +259,7 @@ class Actor():
 	def __init__(self, source):
 
 		self.source = source
-		self.soup = BeautifulSoup ( self.source,"lxml" )
+		self.soup = BeautifulSoup ( self.source, "lxml" )
 
 		#self.biosource = requesets.get(link+'bio/')
 		#self.biosoup = BeautifulSoup (self.biosource, 'lxml')
