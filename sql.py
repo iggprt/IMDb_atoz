@@ -17,6 +17,20 @@ def create_tables():
 	c.execute("""CREATE TABLE IF NOT EXISTS directors_movie_tab (bind_id integer primary key autoincrement, movie_id, director_id)""")
 	c.execute("""CREATE TABLE IF NOT EXISTS writers_movie_tab (bind_id integer primary key autoincrement, movie_id, writer_id)""")
 
+def movie_exists(id_mov):
+	c.execute("""SELECT name
+		FROM movie_tab
+		WHERE movie_id = :id""",{
+		'id': id_mov})
+	result = c.fetchall()
+
+	if result == []:
+		return 0
+	else:
+		return 1
+	
+
+
 def actor_exists(id_act):
 	c.execute("""SELECT name
 		FROM actors_tab
@@ -107,7 +121,7 @@ def add_movie(movie):
 			'm_id':movie.movieID})
 
 		if actor_exists(actor[1]):
-			c.execute("""UPDATE actor_tab
+			c.execute("""UPDATE actors_tab
 				SET films_played = :played, films_total = :total
 				WHERE actor_id = :id""",{
 				'played': films_act(actor[1]) + 1,
@@ -115,15 +129,15 @@ def add_movie(movie):
 				'id': actor[1] 
  				})
 		else:
-			dude = imdblib.Actor(crawler.get_source('http://www.imdb.com/title/' + actor[1] + '/'))
+			dude = imdblib.Actor(crawler.get_source('http://www.imdb.com/name/' + actor[1] + '/'))
 			c.execute("""INSERT INTO actors_tab (actor_id, name, birthdate, deathdate, birthplace, jobs, oscars, films_played, films_directed, films_written, films_total)
 				VALUES(:id, :name, :birthdate, :deathdate, :birthplace, :jobs, :oscars, :films_played, :films_directed, :films_written, :films_total)""",{
 				'id':actor[1],
 				'name': actor[0],    #dont work
 				'birthdate': dude.birthDate,
 				'deathdate': dude.death,
-				'birthplace': dude.birthPlace,
-				'jobs': 'd',   #imdblib.display_list(dude.jobs),    # dont work
+				'birthplace': imdblib.display_list(dude.birthPlace),
+				'jobs': imdblib.display_list(dude.jobs),    # dont work
 				'oscars': dude.oscars,
 				'films_played': 1,
 				'films_directed': 0,
@@ -155,15 +169,15 @@ def add_movie(movie):
 				'id': director[1] 
  				})
 		else:
-			dude = imdblib.Actor(crawler.get_source('http://www.imdb.com/title/' + director[1] + '/'))
+			dude = imdblib.Actor(crawler.get_source('http://www.imdb.com/name/' + director[1] + '/'))
 			c.execute("""INSERT INTO actors_tab (actor_id, name, birthdate, deathdate, birthplace, jobs, oscars, films_played, films_directed, films_written, films_total)
 				VALUES(:id, :name, :birthdate, :deathdate, :birthplace, :jobs, :oscars, :films_played, :films_directed, :films_written, :films_total)""",{
 				'id':director[1],
 				'name': director[0], 
 				'birthdate': dude.birthDate,
 				'deathdate': dude.death,
-				'birthplace': dude.birthPlace,
-				'jobs': 'd', # imdblib.display_list(dude.jobs),
+				'birthplace': imdblib.display_list(dude.birthPlace),
+				'jobs': imdblib.display_list(dude.jobs),
 				'oscars': dude.oscars,
 				'films_played': 0,
 				'films_directed': 1,
@@ -171,6 +185,38 @@ def add_movie(movie):
 				'films_total': 1
 				})
 
+
+	writers = movie.writers
+	for writer in writers:
+
+		c.execute("""INSERT INTO writers_movie_tab (writer_id, movie_id) values(:w_id, :m_id)""",{
+			'w_id':writer[1],
+			'm_id':movie.movieID})
+
+		if actor_exists(writer[1]):
+			c.execute("""UPDATE actors_tab
+				SET films_written = :written, films_total = :total
+				WHERE actor_id = :id""",{
+				'written': films_writ(writer[1]) + 1,
+				'total': films_total(writer[1]) + 1,
+				'id': writer[1] 
+ 				})
+		else:
+			dude = imdblib.Actor(crawler.get_source('http://www.imdb.com/name/' + writer[1] + '/'))
+			c.execute("""INSERT INTO actors_tab (actor_id, name, birthdate, deathdate, birthplace, jobs, oscars, films_played, films_directed, films_written, films_total)
+				VALUES(:id, :name, :birthdate, :deathdate, :birthplace, :jobs, :oscars, :films_played, :films_directed, :films_written, :films_total)""",{
+				'id':writer[1],
+				'name': writer[0], 
+				'birthdate': dude.birthDate,
+				'deathdate': dude.death,
+				'birthplace': imdblib.display_list(dude.birthPlace),
+				'jobs': imdblib.display_list(dude.jobs),
+				'oscars': dude.oscars,
+				'films_played': 0,
+				'films_directed': 0,
+				'films_written': 1,
+				'films_total': 1
+				})
 
 	conn.commit()
 
